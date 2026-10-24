@@ -3,17 +3,14 @@ import boto3
 from dotenv import load_dotenv
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parent.parent
+RAIZ = Path(__file__).resolve().parent.parent      # pasta do projeto
 load_dotenv(RAIZ / "docker" / ".env")
 ok = True
 
-
-# pasta do projeto
 def linha(nome, cond, dica=""):
     global ok
     ok = ok and bool(cond)
     print("OK   " if cond else "FALTA", nome, "" if cond else f"-> {dica}")
-
 
 linha("Java", shutil.which("java") or os.environ.get("JAVA_HOME"),
       "instale o JDK 17 e confira o JAVA_HOME")
@@ -42,16 +39,18 @@ except Exception as e:
 try:
     import tempfile
     from pyspark.sql import SparkSession
+
     os.environ["PYSPARK_PYTHON"] = sys.executable
     os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
+     
     spark = (SparkSession.builder.master("local[2]").appName("teste")
-             .config("spark.driver.bindAddress", "127.0.0.1")
-             .config("spark.driver.host", "127.0.0.1")
-             .config("spark.ui.enabled", "false")
-             .getOrCreate())
+         .config("spark.driver.bindAddress", "127.0.0.1")
+         .config("spark.driver.host", "127.0.0.1")
+         .config("spark.ui.enabled", "false")
+         .getOrCreate())
     df = spark.createDataFrame([(1, "a"), (2, "b")], ["id", "v"])
     destino = os.path.join(tempfile.gettempdir(), "teste_parquet")
-    df.write.mode("overwrite").parquet(destino)  # no Windows, quebra aqui sem o winutils
+    df.write.mode("overwrite").parquet(destino)          # no Windows, quebra aqui sem o winutils
     n = spark.read.parquet(destino).count()
     spark.stop()
     linha(f"Spark {pyspark.__version__} (grava e lê Parquet)", n == 2,
