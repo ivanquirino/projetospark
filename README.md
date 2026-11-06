@@ -72,3 +72,4 @@ OLAP para garantir a velocidade das consultas junto com o crescimento dos dados.
 Opções: Clickhouse ou Apache Doris
 
 
+![Metabase](metabase.png)
