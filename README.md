@@ -45,5 +45,30 @@ que transformam o PostgreSQL num sistema OLAP. Para além do Postgres, existem s
 Apache Doris, Clickhouse, DuckDB etc. Cada uma dessas opções tem seus prós e contras atendem diferentes demadas, mas não assunto para 
 esta discussão.
 
+Qual regra da Silver mandou mais registros para a quarentena e por quê?
+
+Pedidos cujo o cliente é inexistente. `pedidos_client_orfao`
+
+Se a reconciliação não fechasse, o que você investigaria primeiro?
+
+As regras da camada silver e o codigo que move para a quarentena.
+
+Que dado pessoal existe na sua arquitetura e como ele foi tratado (mascarado, removido, restrito)?
+
+nome, estado, email de clientes. apenas email e cidade são removidos na camada gold.
+Nome deveria ser anonimizado, ou removido.
+
+O que você mudaria nesta arquitetura se o volume de dados fosse 1.000 vezes maior?
+
+Na camada Silver, todos os dados da camada bronze são lidos e novos arquivos sao gerados.
+Implementaria um cursor nos registros ou um controle de batch na bronze que garantisse que
+apenas dados novos seriam processados.
+
+A arquitetura carece de um agendador de tarefas para coordenar os processos. Uma ferramenta
+como o Dagster serial essencial para ter controle de job, notificaçãoes e logs.
+
+A camada Gold é servida no Postgres sem nenhuma otimização OLAP. Usaria algum banco de dados
+OLAP para garantir a velocidade das consultas junto com o crescimento dos dados.
+Opções: Clickhouse ou Apache Doris
 
 
